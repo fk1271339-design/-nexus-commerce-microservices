@@ -1,0 +1,23 @@
+# Maven
+**/target/
+**/mvnw
+**/mvnw.cmd
+**/.mvn/wrapper/maven-wrapper.jar
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# Node.js
+**/node_modules/
+**/dist/
+frontend/.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project Specific
+docker-compose.override.yml
