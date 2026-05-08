@@ -1,11 +1,15 @@
+version: '3.9'
+
 services:
-  mysql-db:
-    image: mysql:8.0
-    container_name: mysql-db
+
+  mysql:
+    image: mysql:8
+    container_name: ecommerce-mysql
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ecommerce_users
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
 
@@ -23,7 +27,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
     ports:
       - "9092:9092"
@@ -54,50 +58,68 @@ services:
       - prometheus
 
   user-service:
-    build: ./backend/user-service/user-service
+    build:
+      context: ./backend/user-service/user-service
     container_name: user-service
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/ecommerce_users?createDatabaseIfNotExist=true&useSSL=false
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ecommerce_users?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
     depends_on:
-      - mysql-db
+      - mysql
 
   product-service:
-    build: ./backend/product-service
+    build:
+      context: ./backend/product-service
     container_name: product-service
     ports:
       - "8081:8081"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/ecommerce_products?createDatabaseIfNotExist=true&useSSL=false
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ecommerce_products?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
       SPRING_DATA_REDIS_HOST: redis
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     depends_on:
-      - mysql-db
+      - mysql
       - redis
       - kafka
 
   order-service:
-    build: ./backend/order-service
+    build:
+      context: ./backend/order-service
     container_name: order-service
     ports:
       - "8082:8082"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/ecommerce_orders?createDatabaseIfNotExist=true&useSSL=false
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ecommerce_orders?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_CLOUD_COMPATIBILITY-VERIFIER_ENABLED: "false"
     depends_on:
-      - mysql-db
+      - mysql
       - kafka
 
   api-gateway:
-    build: ./backend/api-gateway
+    build:
+      context: ./backend/api-gateway
     container_name: api-gateway
     ports:
       - "8085:8085"
     environment:
+      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: user-service
       SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://user-service:8080
+      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/api/auth/**
+      SPRING_CLOUD_GATEWAY_ROUTES_1_ID: product-service
       SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://product-service:8081
+      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/api/products/**
+      SPRING_CLOUD_GATEWAY_ROUTES_2_ID: order-service
       SPRING_CLOUD_GATEWAY_ROUTES_2_URI: http://order-service:8082
+      SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0: Path=/api/orders/**
+      SPRING_CLOUD_COMPATIBILITY-VERIFIER_ENABLED: "false"
     depends_on:
       - user-service
       - product-service

@@ -42,9 +42,11 @@ public class AuthService {
         }
 
         User user = User.builder()
-                .name(request.getName())
+                .fullName(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .phoneNumber(request.getPhoneNumber())
+                .address(request.getAddress())
                 .role(role)
                 .build();
 
@@ -58,7 +60,7 @@ public class AuthService {
 
         return AuthResponse.builder()
                 .token(token)
-                .name(user.getName())
+                .name(user.getFullName())
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .build();
@@ -80,7 +82,7 @@ public class AuthService {
 
         return AuthResponse.builder()
                 .token(token)
-                .name(user.getName())
+                .name(user.getFullName())
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .build();

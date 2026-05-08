@@ -6,8 +6,6 @@ import com.ecommerce.productservice.entity.Product;
 import com.ecommerce.productservice.exception.CustomException;
 import com.ecommerce.productservice.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +18,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    @CacheEvict(value = "products", allEntries = true)
     public ProductResponse createProduct(ProductRequest request) {
         Product product = Product.builder()
                 .name(request.getName())
@@ -35,14 +32,12 @@ public class ProductService {
         return mapToResponse(savedProduct);
     }
 
-    @Cacheable(value = "products", key = "#id")
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
         return mapToResponse(product);
     }
 
-    @Cacheable(value = "products", key = "{#page, #size, #category, #search}")
     public Page<ProductResponse> getAllProducts(int page, int size, String category, String search) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> productPage;
@@ -58,7 +53,6 @@ public class ProductService {
         return productPage.map(this::mapToResponse);
     }
 
-    @CacheEvict(value = "products", allEntries = true)
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
@@ -74,7 +68,6 @@ public class ProductService {
         return mapToResponse(updatedProduct);
     }
 
-    @CacheEvict(value = "products", allEntries = true)
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             throw new CustomException("Product not found", HttpStatus.NOT_FOUND);
