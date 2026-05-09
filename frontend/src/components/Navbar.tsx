@@ -15,46 +15,66 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="sticky top-0 z-50 bg-white shadow-md">
-            <div className="container mx-auto flex items-center justify-between px-6 py-4">
-                <Link to="/" className="text-2xl font-bold text-blue-600">NexusCommerce</Link>
+        <nav className="sticky top-0 z-50 bg-[#2874f0] text-white shadow-lg">
+            <div className="container mx-auto flex h-16 items-center px-4 lg:px-12">
+                {/* Logo */}
+                <div className="flex flex-col items-start mr-8">
+                    <Link to="/" className="text-xl font-bold italic tracking-wide">NexusCommerce</Link>
+                    <Link to="/" className="flex items-center text-[11px] italic hover:underline">
+                        Explore <span className="ml-1 font-bold text-[#ffe500]">Plus</span>
+                        <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/plus_aef861.png" alt="plus" className="ml-0.5 h-2.5 w-2.5" />
+                    </Link>
+                </div>
                 
-                <div className="hidden flex-1 items-center justify-center px-10 md:flex">
-                    <div className="relative w-full max-w-lg">
+                {/* Search Bar */}
+                <div className="flex flex-1 items-center justify-start max-w-2xl">
+                    <div className="relative w-full">
                         <input
                             type="text"
-                            placeholder="Search products..."
-                            className="w-full rounded-full border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none"
+                            placeholder="Search for products, brands and more"
+                            className="w-full rounded-sm border-none py-2.5 pl-4 pr-12 text-sm text-gray-800 focus:outline-none"
                         />
-                        <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                        <button className="absolute right-0 top-0 h-full px-4 text-[#2874f0]">
+                            <Search className="h-5 w-5" />
+                        </button>
                     </div>
                 </div>
 
-                <div className="flex items-center space-x-6">
-                    <Link to="/cart" className="relative flex items-center text-gray-700 hover:text-blue-600">
-                        <ShoppingCart className="h-6 w-6" />
-                        {cartCount > 0 && (
-                            <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                                {cartCount}
-                            </span>
-                        )}
-                    </Link>
-
+                {/* Actions */}
+                <div className="ml-8 flex items-center space-x-8 font-semibold">
                     {user ? (
-                        <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-1 text-gray-700">
-                                <User className="h-5 w-5" />
-                                <span className="font-medium">{user.name}</span>
+                        <div className="group relative cursor-pointer">
+                            <div className="flex items-center space-x-2">
+                                <span className="hover:text-gray-200">{user.name}</span>
+                                <svg className="h-4 w-4 fill-current transition-transform group-hover:rotate-180" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
-                            <button onClick={handleLogout} className="text-gray-700 hover:text-red-600">
-                                <LogOut className="h-5 w-5" />
-                            </button>
+                            {/* Dropdown */}
+                            <div className="absolute left-0 top-full hidden w-48 rounded-sm bg-white pt-2 text-gray-800 shadow-xl group-hover:block">
+                                <div className="border-b px-4 py-3 hover:bg-gray-50">My Profile</div>
+                                <div className="border-b px-4 py-3 hover:bg-gray-50">Orders</div>
+                                <div className="border-b px-4 py-3 hover:bg-gray-50">Wishlist</div>
+                                <div onClick={handleLogout} className="px-4 py-3 text-red-600 hover:bg-gray-50">Logout</div>
+                            </div>
                         </div>
                     ) : (
-                        <Link to="/login" className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                        <Link to="/login" className="rounded-sm bg-white px-8 py-1.5 text-[#2874f0] hover:bg-gray-100">
                             Login
                         </Link>
                     )}
+
+                    <Link to="/cart" className="flex items-center space-x-2 hover:text-gray-200">
+                        <div className="relative">
+                            <ShoppingCart className="h-5 w-5" />
+                            {cartCount > 0 && (
+                                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#ff6161] text-[10px] text-white border border-white">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </div>
+                        <span>Cart</span>
+                    </Link>
+
+                    <div className="hidden lg:block cursor-pointer hover:text-gray-200">Become a Seller</div>
                 </div>
             </div>
         </nav>

@@ -9,6 +9,7 @@ interface User {
 interface AuthContextType {
     user: User | null;
     login: (token: string, user: User) => void;
+    googleLogin: () => void;
     logout: () => void;
 }
 
@@ -30,14 +31,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(userData);
     };
 
+    const googleLogin = () => {
+        const mockUser: User = {
+            name: 'Google User',
+            email: 'google_user@example.com',
+            role: 'CUSTOMER'
+        };
+        const mockToken = 'mock-google-token';
+        localStorage.setItem('token', mockToken);
+        localStorage.setItem('user', JSON.stringify(mockUser));
+        setUser(mockUser);
+    };
+
     const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.clear(); // Clear everything including token and user
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, googleLogin, logout }}>
             {children}
         </AuthContext.Provider>
     );

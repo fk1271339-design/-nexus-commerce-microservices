@@ -12,15 +12,22 @@ interface CartContextType {
     cartItems: CartItem[];
     addToCart: (item: CartItem) => void;
     removeFromCart: (id: number) => void;
+    updateQuantity: (id: number, quantity: number) => void;
     clearCart: () => void;
     cartCount: number;
     cartTotal: number;
+    discount: number;
+    appliedCoupon: string | null;
+    applyCoupon: (code: string) => boolean;
+    removeCoupon: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [discount, setDiscount] = useState(0);
+    const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
 
     useEffect(() => {
         const storedCart = localStorage.getItem('cart');
@@ -39,8 +46,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (existing) {
                 return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
             }
-            return [...prev, { ...item, quantity: 1 }];
+            return [...prev, item];
         });
+    };
+
+    const updateQuantity = (id: number, quantity: number) => {
+        if (quantity < 1) return;
+        setCartItems(prev => prev.map(item => item.id === id ? { ...item, quantity } : item));
     };
 
     const removeFromCart = (id: number) => {
@@ -49,13 +61,39 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const clearCart = () => {
         setCartItems([]);
+        setDiscount(0);
+        setAppliedCoupon(null);
+    };
+
+    const applyCoupon = (code: string): boolean => {
+        const upperCode = code.toUpperCase();
+        let d = 0;
+        if (upperCode === 'SAVE20') d = 0.2;
+        else if (upperCode === 'WELCOME50') d = 0.5;
+        else if (upperCode === 'NEXUS10') d = 0.1;
+        else if (upperCode === 'NEXUSAICHAT') d = 0.25;
+
+        if (d > 0) {
+            setDiscount(d);
+            setAppliedCoupon(upperCode);
+            return true;
+        }
+        return false;
+    };
+
+    const removeCoupon = () => {
+        setDiscount(0);
+        setAppliedCoupon(null);
     };
 
     const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
     const cartTotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
     return (
-        <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, cartCount, cartTotal }}>
+        <CartContext.Provider value={{ 
+            cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, cartTotal, 
+            discount, appliedCoupon, applyCoupon, removeCoupon 
+        }}>
             {children}
         </CartContext.Provider>
     );
