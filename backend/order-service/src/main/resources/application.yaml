@@ -2,15 +2,14 @@ spring:
   application:
     name: order-service
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   datasource:
-    url: jdbc:mysql://localhost:3306/ecommerce_orders?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://mysql:3306/ecommerce_orders?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
     username: root
-    password: 
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: root
   jpa:
     hibernate:
       ddl-auto: update

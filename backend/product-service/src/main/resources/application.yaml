@@ -3,10 +3,10 @@ spring:
     name: product-service
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
     consumer:
       group-id: product-group
       auto-offset-reset: earliest
@@ -15,10 +15,9 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
   datasource:
-    url: jdbc:mysql://localhost:3306/ecommerce_products?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://mysql:3306/ecommerce_products?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
     username: root
-    password: 
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: root
   jpa:
     hibernate:
       ddl-auto: update

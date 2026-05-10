@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { Star, ShoppingCart, Heart } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface ProductCardProps {
@@ -16,19 +17,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, name, price, description,
     const { addToCart } = useCart();
     const navigate = useNavigate();
 
-    const handleAddToCart = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        addToCart({ id, name, price, quantity: 1, imageUrl: uniqueImageUrl });
-        toast.success(`${name} added to cart!`);
-    };
-
-    const msrp = (price * 1.4).toFixed(2);
-    const discount = 40;
-    const rating = (Math.random() * (5 - 3.8) + 3.8).toFixed(1);
-    const reviewCount = Math.floor(Math.random() * 5000) + 100;
-    
-    // Realistic image mapping based on category/name
     const categoryKeywords: { [key: string]: string } = {
         'Electronics': 'tech,gadget',
         'Fashion': 'clothes,fashion',
@@ -45,53 +33,70 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, name, price, description,
     const keyword = categoryKeywords[category] || 'product';
     const uniqueImageUrl = `https://loremflickr.com/400/400/${keyword}?lock=${id}`;
 
+    const handleAddToCart = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        addToCart({ id, name, price, quantity: 1, imageUrl: uniqueImageUrl });
+        toast.success(`${name} added to cart!`);
+    };
+
+    const msrp = (price * 1.4).toFixed(2);
+    const rating = (Math.random() * (5 - 3.8) + 3.8).toFixed(1);
+    const reviewCount = Math.floor(Math.random() * 5000) + 100;
+
     return (
         <div 
             onClick={() => navigate(`/product/${id}`)}
-            className="group relative flex flex-col bg-white p-4 transition hover:shadow-2xl cursor-pointer border border-gray-100 rounded-sm"
+            className="group relative flex flex-col bg-white p-5 transition-all duration-500 hover:shadow-[0_30px_60px_rgba(128,0,0,0.12)] cursor-pointer border border-gray-100 rounded-2xl hover:-translate-y-2 overflow-hidden"
         >
-            <div className="relative mb-3 h-48 w-full overflow-hidden">
+            <div className="relative mb-5 h-60 w-full overflow-hidden rounded-xl bg-gray-50 group-hover:bg-white transition-colors">
                 <img
                     src={uniqueImageUrl}
                     alt={name}
-                    className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-110"
+                    className="h-full w-full object-contain transition-transform duration-1000 group-hover:scale-110"
                     loading="lazy"
                 />
+                <div className="absolute top-3 left-3 flex flex-col gap-2">
+                    {price > 500 && (
+                        <span className="bg-[#800000] text-white text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg italic">Premium</span>
+                    )}
+                    <span className="bg-yellow-400 text-[#800000] text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg italic">Trending</span>
+                </div>
                 <button 
                     onClick={(e) => { e.stopPropagation(); }} 
-                    className="absolute right-0 top-0 p-2 text-gray-300 hover:text-red-500 transition"
+                    className="absolute right-3 top-3 p-2.5 bg-white/90 backdrop-blur-sm rounded-full text-gray-300 hover:text-[#800000] transition shadow-md border border-gray-100 hover:scale-110 active:scale-90"
                 >
-                    <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    <Heart className="h-4 w-4" />
                 </button>
             </div>
 
             <div className="flex flex-col flex-1">
-                <h3 className="text-sm font-medium text-gray-800 line-clamp-2 group-hover:text-[#2874f0]">{name}</h3>
+                <p className="text-[10px] font-black text-[#800000] uppercase tracking-[0.2em] mb-2 italic opacity-70">{category}</p>
+                <h3 className="text-sm font-black text-gray-800 line-clamp-2 group-hover:text-[#800000] transition-colors tracking-tight mb-3 leading-snug">{name}</h3>
                 
-                <div className="mt-1 flex items-center space-x-2">
-                    <div className="flex items-center bg-green-600 px-1.5 py-0.5 rounded-sm text-[10px] font-bold text-white">
-                        <span>{rating}</span>
-                        <span className="ml-0.5">★</span>
+                <div className="mt-auto">
+                    <div className="flex items-center space-x-3 mb-4 border-b border-dashed border-gray-100 pb-3">
+                        <div className="flex items-center bg-[#800000] px-2 py-0.5 rounded text-[10px] font-black text-white italic">
+                            <span>{rating}</span>
+                            <Star className="ml-1 h-2.5 w-2.5 fill-current" />
+                        </div>
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Nexus Verified ({reviewCount})</span>
                     </div>
-                    <span className="text-xs font-semibold text-gray-400">({reviewCount})</span>
-                </div>
 
-                <div className="mt-2 flex items-baseline space-x-2">
-                    <span className="text-lg font-bold text-gray-900">${price}</span>
-                    <span className="text-sm text-gray-500 line-through">${msrp}</span>
-                    <span className="text-xs font-bold text-green-600">{discount}% off</span>
-                </div>
+                    <div className="flex items-baseline space-x-3 mb-5">
+                        <span className="text-2xl font-black text-gray-900 italic tracking-tighter">${price}</span>
+                        <span className="text-xs text-gray-400 line-through font-bold">${msrp}</span>
+                        <div className="bg-maroon-50 px-2 py-0.5 rounded">
+                            <span className="text-[10px] font-black text-[#800000] uppercase tracking-widest animate-pulse">40% OFF</span>
+                        </div>
+                    </div>
 
-                <div className="mt-1">
-                    <span className="text-xs font-semibold text-gray-800">Free delivery</span>
-                </div>
-
-                <div className="mt-auto pt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                         onClick={handleAddToCart}
-                        className="w-full rounded-sm bg-[#ff9f00] py-2 text-sm font-bold text-white shadow-md hover:bg-[#fb641b] transition"
+                        className="w-full rounded-full bg-gray-900 py-3 text-[10px] font-black text-white shadow-xl hover:bg-[#800000] transition-all duration-300 flex items-center justify-center space-x-2 uppercase tracking-[0.3em] group-hover:shadow-maroon-200"
                     >
-                        ADD TO CART
+                        <ShoppingCart className="h-3.5 w-3.5" />
+                        <span>Acquire</span>
                     </button>
                 </div>
             </div>
